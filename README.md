@@ -27,8 +27,6 @@ Actualice las variables de entorno en el fichero [docker-compose.yaml](./docker-
 Además en el fichero [nginx.conf](./nginx.conf) hace falta asegurarse de que en la configuración del servidor los parámetros correspondientes a los certificados apunten correctamente a donde se encuentran guardados dentro del host.
 
 ```
-Check below property for nginx.conf and update correct server host 
-```config
 server_name site-domain.com;
 ssl_certificate "/etc/letsencrypt/live/site-domain.com/fullchain.pem";
 ssl_certificate_key "/etc/letsencrypt/live/site-domain.com/privkey.pem";
