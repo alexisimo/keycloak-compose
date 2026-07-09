@@ -25,7 +25,7 @@ git clone https://github.com/alexisimo/keycloak-compose.git
 ```
 
 ## Actualice las variables de entorno
-El fichero [.env.example](./.env.example) se puede usar como un ejemplo de configuración de las variables de entorno. Haga una copia utilizando el nombre `.env` y actualice las variables de entorno acorde a su caso. Aunque en el fichero ya están definidas se recomienda cambiar las credenciales por seguridad. 
+El fichero [.env](./.env) se puede usar como un ejemplo de configuración de las variables de entorno. Actualice las variables de entorno acorde a su caso. Aunque en el fichero ya están definidas se recomienda cambiar las credenciales por seguridad. 
 
 ## Correr los servicios de Keycloak, Nginx y el backupper
 
