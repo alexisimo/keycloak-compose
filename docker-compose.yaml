@@ -1,23 +1,23 @@
 services:
-  postgres:
+  postgres-db:
     image: postgres:16.0
     container_name: postgres
     restart: always
     volumes:
-      - ${POSTGRES_VOLUME_HOST}:/var/lib/postgresql/data
+      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
     networks:
       - keycloak-network
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: keycloak
     restart: always
     depends_on:
-      - postgres
+      - postgres-db
     command:
       - start
     networks:
@@ -25,9 +25,9 @@ services:
     environment:
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
-      KC_DB_URL_DATABSE: ${POSTGRES_USER}
-      KC_DB_USERNAME: ${POSTGRES_DB}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_URL_DATABSE: ${DB_NAME}
+      KC_DB_USERNAME: ${DB_USER}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
       KC_HTTP_ENABLED: true
       KC_PROXY_HEADERS: xforwarded
       KC_PROXY_ADDRESS_FORWARDING: true
@@ -35,6 +35,24 @@ services:
       KC_HOSTNAME: ${KC_HOSTNAME_URL}
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+
+  backup_nfs:
+    image: ${IMAGE_BACKUP_NAME}
+    container_name: app_backup_nfs
+    restart: unless-stopped
+    build: ./backupper/
+    user: 200:200
+    environment:
+      - TZ="Europe/Madrid"
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - CRON_LINE=${CRON_LINE_COMPAT}
+    volumes:
+      - ${POSTGRES_DATA_DIR_BACKUP}:/pgsqlbackup
+      - ${APP_DATA_DIR}:/app-data:ro
+    depends_on:
+      - postgres-db  
 
   nginx:
     image: nginx:latest
