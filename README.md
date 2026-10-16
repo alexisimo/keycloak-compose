@@ -1,24 +1,14 @@
 # Despliegue de KeyCloak en Production con backup usando docker compose
-Este es un repositorio de referencia para desplegar en producción el gestor de identidad y acceso (IAM) Keycloak + Postgresql junto con el servidor web Nginx y Certbot usando Docker compose. La documentación en la que se ha basado este repositorio se encuentra en el siguiente [link](https://www.keycloak.org/guides#getting-started). 
+Este es un repositorio de referencia para desplegar en producción el gestor de identidad y acceso (IAM) Keycloak + Postgresql junto con el servidor web Nginx, y backupper usando Docker compose. La documentación de Keycloak en la que se ha basado este repositorio se encuentra en el siguiente [link](https://www.keycloak.org/guides#getting-started). 
 
 En la carpeta backupper se puede encontrar lo necesario para desplegar un contenedor que hace copias de seguridad periódicas de la base de datos y los datos de aplicación.
 
 ## Prerequisitos
 * Docker y docker compose tienen que estar instalados en la máquina host
   * Siga las indicaciones del siguiente [link](https://docs.docker.com/engine/install/ubuntu/) para instalarlo correctamente
-* Acceso para configurar los registros de un dominio u obtener uno temporal en https://www.duckdns.org/domains 
+* Acceso para configurar los registros de un dominio  
+* Terminación SSL en WAF para publicación en HTTP
 
-## Obtención de un certificado SSL Certificate usando Certbot:
-Instale Certbot y obtenga el certificado SSL para su dominio. Asegúrese de que su máquina host es accesible desde el internet. 
-```shell
-  # Instale Certbot 
-  sudo apt-get update
-  sudo apt-get install certbot
-
-  # Obtenga un certificado SSL para su dominio
-  # sudo certbot certonly --standalone -d <Keycloak server domain> -m <your email> --agree-tos
-  sudo certbot certonly --standalone -d site-domain.com -m test@gmail.com --agree-tos
-```
 ## Clone este repositorio
 ```
 git clone https://github.com/alexisimo/keycloak-compose.git
