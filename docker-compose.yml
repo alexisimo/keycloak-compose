@@ -1,7 +1,7 @@
 services:
   postgres-db:
     image: postgres:16.0
-    container_name: postgres
+    container_name: ${PROJECT}-postgres
     restart: always
     volumes:
       - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
@@ -11,21 +11,28 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
-    container_name: keycloak
+    container_name: ${PROJECT}-keycloak
     restart: always
     depends_on:
-      - postgres-db
+      postgres-db:
+        condition: service_healthy
     command:
       - start
     networks:
       - keycloak-network
     environment:
       KC_DB: postgres
-      KC_DB_URL_HOST: postgres
-      KC_DB_URL_DATABSE: ${DB_NAME}
+      KC_DB_URL_HOST: postgres-db
+      KC_DB_URL_DATABASE: ${DB_NAME}
       KC_DB_USERNAME: ${DB_USER}
       KC_DB_PASSWORD: ${DB_PASSWORD}
       KC_HTTP_ENABLED: true
@@ -38,7 +45,7 @@ services:
 
   backup_nfs:
     image: ${IMAGE_BACKUP_NAME}
-    container_name: app_backup_nfs
+    container_name: ${PROJECT}-app_backup_nfs
     restart: unless-stopped
     build: ./backupper/
     user: 200:200
@@ -56,7 +63,7 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: nginx
+    container_name: ${PROJECT}-nginx
     environment:
       KEYCLOAK_HOSTNAME: ${KC_HOSTNAME_URL}
     ports:
@@ -64,7 +71,6 @@ services:
       - "${HTTPS_PORT}:443"
     volumes:
       - ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
-      - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - keycloak
     networks:
